@@ -23,6 +23,13 @@ public class UsuarioService {
         this.mapper = mapper;
     }
 
+    public Usuario buscarEntidadePorId(Long id) {
+
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
+    }
+
     public UsuarioResponseDTO criar(
             UsuarioRequestDTO dto) {
 
@@ -43,19 +50,17 @@ public class UsuarioService {
 
     public UsuarioResponseDTO buscarPorId(Long id) {
 
-        Usuario usuario = repository.findById(id)
-                .orElseThrow();
-
-        return mapper.toResponse(usuario);
+        return mapper.toResponse(
+                buscarEntidadePorId(id)
+        );
     }
 
     public UsuarioResponseDTO atualizar(
             Long id,
             UsuarioRequestDTO dto) {
 
-        Usuario usuario = repository
-                .findById(id)
-                .orElseThrow();
+        Usuario usuario =
+                buscarEntidadePorId(id);
 
         usuario.setNome(dto.nome());
         usuario.setDataNascimento(dto.dataNascimento());

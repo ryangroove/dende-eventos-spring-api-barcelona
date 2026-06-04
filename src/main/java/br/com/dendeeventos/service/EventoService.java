@@ -7,8 +7,6 @@ import br.com.dendeeventos.entity.Organizador;
 import br.com.dendeeventos.entity.Usuario;
 import br.com.dendeeventos.mapper.EventoMapper;
 import br.com.dendeeventos.repository.EventoRepository;
-import br.com.dendeeventos.repository.OrganizadorRepository;
-import br.com.dendeeventos.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,36 +15,38 @@ import java.util.List;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
-    private final OrganizadorRepository organizadorRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final OrganizadorService organizadorService;
+    private final UsuarioService usuarioService;
     private final EventoMapper eventoMapper;
 
     public EventoService(
             EventoRepository eventoRepository,
-            OrganizadorRepository organizadorRepository,
-            UsuarioRepository usuarioRepository,
+            OrganizadorService organizadorService,
+            UsuarioService usuarioService,
             EventoMapper eventoMapper) {
 
         this.eventoRepository = eventoRepository;
-        this.organizadorRepository = organizadorRepository;
-        this.usuarioRepository = usuarioRepository;
+        this.organizadorService = organizadorService;
+        this.usuarioService = usuarioService;
         this.eventoMapper = eventoMapper;
     }
 
     public EventoResponseDTO criar(EventoRequestDTO dto) {
 
         Organizador organizador =
-                organizadorRepository.findById(dto.organizadorId())
-                        .orElseThrow();
+                organizadorService.buscarEntidadePorId(
+                        dto.organizadorId()
+                );
 
         List<Usuario> participantes =
-                usuarioRepository.findAllById(dto.participantesIds());
+                dto.participantesIds()
+                        .stream()
+                        .map(usuarioService::buscarEntidadePorId)
+                        .toList();
 
-        Evento evento = new Evento();
+        Evento evento =
+                eventoMapper.toEntity(dto);
 
-        evento.setNome(dto.nome());
-        evento.setDescricao(dto.descricao());
-        evento.setDataEvento(dto.dataEvento());
         evento.setOrganizador(organizador);
         evento.setParticipantes(participantes);
 
@@ -66,7 +66,8 @@ public class EventoService {
     public EventoResponseDTO buscarPorId(Long id) {
 
         Evento evento = eventoRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new RuntimeException("Evento não encontrado"));
 
         return eventoMapper.toResponse(evento);
     }
@@ -77,14 +78,19 @@ public class EventoService {
 
         Evento evento =
                 eventoRepository.findById(id)
-                        .orElseThrow();
+                        .orElseThrow(() ->
+                                new RuntimeException("Evento não encontrado"));
 
         Organizador organizador =
-                organizadorRepository.findById(dto.organizadorId())
-                        .orElseThrow();
+                organizadorService.buscarEntidadePorId(
+                        dto.organizadorId()
+                );
 
         List<Usuario> participantes =
-                usuarioRepository.findAllById(dto.participantesIds());
+                dto.participantesIds()
+                        .stream()
+                        .map(usuarioService::buscarEntidadePorId)
+                        .toList();
 
         evento.setNome(dto.nome());
         evento.setDescricao(dto.descricao());

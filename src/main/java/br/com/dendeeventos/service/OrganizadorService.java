@@ -23,6 +23,13 @@ public class OrganizadorService {
         this.mapper = mapper;
     }
 
+    public Organizador buscarEntidadePorId(Long id) {
+
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Organizador não encontrado"));
+    }
+
     public OrganizadorResponseDTO criar(
             OrganizadorRequestDTO dto) {
 
@@ -45,10 +52,9 @@ public class OrganizadorService {
 
     public OrganizadorResponseDTO buscarPorId(Long id) {
 
-        Organizador organizador = repository.findById(id)
-                .orElseThrow();
-
-        return mapper.toResponse(organizador);
+        return mapper.toResponse(
+                buscarEntidadePorId(id)
+        );
     }
 
     public OrganizadorResponseDTO atualizar(
@@ -56,8 +62,7 @@ public class OrganizadorService {
             OrganizadorRequestDTO dto) {
 
         Organizador organizador =
-                repository.findById(id)
-                        .orElseThrow();
+                buscarEntidadePorId(id);
 
         organizador.setNome(dto.nome());
         organizador.setDataNascimento(dto.dataNascimento());
