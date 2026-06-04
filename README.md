@@ -127,4 +127,4 @@ Projeto desenvolvido para a disciplina de Desenvolvimento Web Orientada a Objeto
 
 ---
 
-Centro Universitário de Excelência UNEX - Sistemas da Informação - Projeto Acadêmico 
+Centro Universitário de Excelência UNEX - Sistemas de Informação - Projeto Acadêmico 
